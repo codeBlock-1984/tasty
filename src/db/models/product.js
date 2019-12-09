@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       defaultValue: 0
     },
+    stock: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    },
     status: {
       type: DataTypes.ENUM(['IN_STOCK', 'OUT_OF_STOCK', 'RUNNING_LOW']),
       defaultValue: 'OUT_OF_STOCK'
@@ -25,9 +29,19 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Product.associate = function(models) {
     // associations can be defined here
-    Product.belongsToMany(models.Order, {
-      through: models.OrderItem,
+    Product.belongsTo(models.Category, {
+      foreignKey: 'catId',
+      as: 'category',
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
+    });
+
+    Product.hasMany(models.OrderItem, {
+      foreignKey: 'productId',
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
     });
   };
+  
   return Product;
 };

@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { User, Product, Order } from '../db/models/index';
 
 const dBHelper = {
-  findRecord: (type) => {
+  findRecord: (type, search = null) => {
     let model;
     switch (type) {
       case 'User':
@@ -23,10 +23,12 @@ const dBHelper = {
 
     return async (req, res, next) => {
       const { id } = req.params;
-      const result = await model.findOne({ where: { id } });
+      const { email } = req.body;
+      const query = search ? { where: { email } } : { where: { id } };
+      const result = await model.findOne(query);
       if (_.isEmpty(result)) {
         return res.status(404).json({
-          message: `${ type } with id ${ id } not found`
+          message: `${ type } not found`
         });
       } else {
         req.found = result;

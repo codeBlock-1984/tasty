@@ -25,6 +25,20 @@ module.exports = {
         type: Sequelize.INTEGER,
         defaultValue: 0
       },
+      catId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Categories',
+          key: 'id',
+          as: 'category'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
+      stock: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+      },
       status: {
         type: Sequelize.ENUM(['IN_STOCK', 'OUT_OF_STOCK', 'RUNNING_LOW']),
         defaultValue: 'OUT_OF_STOCK'

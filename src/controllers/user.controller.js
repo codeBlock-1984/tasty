@@ -1,7 +1,10 @@
 import { User } from '../db/models/index';
 import helpers from '../helpers';
 
-const { getResponseSuccess, getResponseFailure, getTrimmedObject } = helpers;
+const {
+  getResponseSuccess, getResponseFailure, getTrimmedObject,
+  getPaginationData, getFormattedResult
+} = helpers;
 
 class UserController {
   static async create(req, res, next) {
@@ -21,7 +24,7 @@ class UserController {
     const newDetails = getTrimmedObject({ name, phone, role, address });
     try {
       const result = await User.update(newDetails, { where: { id } });
-      req.success = getResponseSuccess(200, 'User successfully updated', [result]);
+      req.success = getResponseSuccess(200, 'User successfully updated', [result], true);
     } catch (error) {
       req.failure = getResponseFailure(error);
     }
@@ -32,14 +35,14 @@ class UserController {
     const { id } = req.params;
     try {
       const result = await User.destroy({ where: { id } });
-      req.success = getResponseSuccess(200, 'User successfully deleted', [result]);
+      req.success = getResponseSuccess(200, 'User successfully deleted', [result], true);
     } catch (error) {
       req.failure = getResponseFailure(error);
     }
     next();
   }
 
-  static async getUser(req, res, next) {
+  static async get(req, res, next) {
     const { id } = req.params;
     try {
       const result = await User.findOne({ where: { id }, raw: true });
@@ -50,10 +53,13 @@ class UserController {
     next();
   }
 
-  static async getUsers(req, res, next) {
+  static async getAll(req, res, next) {
+    const { page } = req.query;
+    const paginationData = getPaginationData(page);
     try {
-      const result = await User.findAll({ raw: true });
-      req.success = getResponseSuccess(200, 'Users fetched successfully', result);
+      const result = await User.findAndCountAll(paginationData);
+      const formattedResult = getFormattedResult(result, page);
+      req.success = getResponseSuccess(200, 'Users fetched successfully', [formattedResult]);
     } catch (error) {
       req.failure = getResponseFailure(error);
     }
